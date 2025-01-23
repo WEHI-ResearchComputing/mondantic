@@ -3,14 +3,20 @@ import requests
 import typer
 import ast
 
-TYPE_MAP = {
-    "numbers": "int",
+TYPE_MAP: dict[str, str] = {
+    "numbers": "Numbers",
     "people": "People",
     "item_id": "ItemId",
     "status": "Status",
     "date": "Date",
     "board_relation": "BoardRelation"
 }
+DEFAULT_MAP: dict[str, ast.expr] = {
+    "people": ast.List([]),
+    "board_relation": ast.List([])
+}
+
+app = typer.Typer()
 
 def codegen(
     board_id: int,
@@ -38,6 +44,7 @@ def codegen(
         },
         headers={"Authorization": api_key, "API-Version": "2023-04"},
     )
+    res.raise_for_status()
     parsed = res.json()
     columns: list[ast.AnnAssign] = [
         ast.AnnAssign(
@@ -61,14 +68,16 @@ def codegen(
     ]
     for column in parsed["data"]["boards"][0]["columns"]:
         col_name = column["title"].lower().replace(" ", "_").replace("#", "num").replace("&", "").replace("/", "")
-        col_type: str = TYPE_MAP.get(column["type"], "str")
+        col_type: str = TYPE_MAP.get(column["type"], "Text")
+        default: ast.expr = DEFAULT_MAP.get(column["type"], ast.Constant(None))
         columns.append(
             ast.AnnAssign(
                 target=ast.Name(col_name),
-                annotation=ast.Subscript(ast.Name("Optional"), slice=ast.Name(col_type)),
+                annotation=ast.Name(col_type),
+                # annotation=ast.Subscript(ast.Name("Optional"), slice=ast.Name(col_type)),
                 value=ast.Call(ast.Name("Field"), [], [
                     ast.keyword("alias", ast.Constant(column["id"])),
-                    ast.keyword("default", ast.Constant(None)),
+                    ast.keyword("default", default),
                 ]),
                 simple=1,
             )
@@ -82,9 +91,11 @@ def codegen(
                     ast.alias("Status"),
                     ast.alias("Date"),
                     ast.alias("BoardRelation"),
+                    ast.alias("Text"),
+                    ast.alias("Numbers"),
                 ], 0),
                 ast.ImportFrom("pydantic", [ast.alias("BaseModel"), ast.alias("Field")], 0),
-                ast.ImportFrom("typing", [ast.alias("ClassVar"), ast.alias("Optional")], 0),
+                ast.ImportFrom("typing", [ast.alias("ClassVar")], 0),
                 ast.ClassDef(
                     name=parsed["data"]["boards"][0]["name"],
                     bases=[ast.Name("BaseModel", 0)],
@@ -99,7 +110,8 @@ def codegen(
     )
 
 
-def main(
+@app.command()
+def cli_codegen(
     board_id: Annotated[
         int,
         typer.Option(
@@ -117,5 +129,8 @@ def main(
     print(ast.unparse(result))
 
 
+def main():
+    app()
+
 if __name__ == "__main__":
-    result = typer.run(main)
+    main()

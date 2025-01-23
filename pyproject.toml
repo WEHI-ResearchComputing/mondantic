@@ -1,7 +1,7 @@
 [project]
-name = "mondayschema"
+name = "mondantic"
 version = "0.1.0"
-description = "Add your description here"
+description = "Converts Monday.com boards into Pydantic schemas and populates them"
 readme = "README.md"
 authors = [
     { name = "Michael Milton", email = "michael.r.milton@gmail.com" } 
@@ -15,7 +15,7 @@ dependencies = [
 ]
 
 [project.scripts]
-mondayschema = "mondayschema:main"
+mondantic-codegen = "mondantic.codegen:main"
 
 [build-system]
 requires = ["hatchling"]

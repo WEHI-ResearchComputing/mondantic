@@ -1,4 +1,3 @@
-import json
 from pydantic import BaseModel
 from typing import Iterable, Type
 import requests
@@ -18,10 +17,32 @@ def hydrate[T: BaseModel](cls: Type[T], api_key: str) -> Iterable[T]:
                     items_page {
                       items {
                         column_values {
-                          id,
-                          type,
-                          value,
+                          id
+                          type
+                          value
                           text
+                          ... on BoardRelationValue {
+                            linked_item_ids
+                            display_value
+                          },
+                          ... on DateValue {
+                            time
+                            date
+                          }
+                          ... on StatusValue {
+                            label
+                          }
+                          ... on PeopleValue {
+                            persons_and_teams {
+                              id
+                            }
+                          }
+                          ... on ItemIdValue {
+                            item_id
+                          }
+                          ... on NumbersValue {
+                            number
+                          }
                       }
                     }
                   }
@@ -32,16 +53,8 @@ def hydrate[T: BaseModel](cls: Type[T], api_key: str) -> Iterable[T]:
         },
         headers={"Authorization": api_key, "API-Version": "2023-04"},
     )
+    res.raise_for_status()
     parsed = res.json()
     for row in parsed["data"]["boards"][0]["items_page"]["items"]:
-        model_json = {
-            col["id"]: json.loads(col["value"])
-            for col in row["column_values"]
-            if col["value"] is not None
-        }
-        model_json = {
-            key: value
-            for key, value in model_json.items()
-            if value is not None and value != {}
-        }
+        model_json = { col["id"]: col for col in row["column_values"] }
         yield cls.model_validate(model_json)

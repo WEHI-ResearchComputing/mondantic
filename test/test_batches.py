@@ -1,6 +1,6 @@
 import ast
-from mondayschema.codegen import codegen
-from mondayschema.hydrate import hydrate
+from mondantic.codegen import codegen
+from mondantic.hydrate import hydrate
 
 def test_codegen(api_key: str, board_id: int):
     # Codegen
