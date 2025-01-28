@@ -43,6 +43,11 @@ def hydrate[T: BaseModel](cls: Type[T], api_key: str) -> Iterable[T]:
                           ... on NumbersValue {
                             number
                           }
+                          ... on FileValue {
+                            files
+                            id
+                          }
+                        }
                       }
                     }
                   }
@@ -53,7 +58,8 @@ def hydrate[T: BaseModel](cls: Type[T], api_key: str) -> Iterable[T]:
         },
         headers={"Authorization": api_key, "API-Version": "2023-04"},
     )
-    res.raise_for_status()
+    if res.status_code != 200:
+      raise ValueError(f"Failed to fetch data from Monday.com API: {res.text}")
     parsed = res.json()
     for row in parsed["data"]["boards"][0]["items_page"]["items"]:
         model_json = { col["id"]: col for col in row["column_values"] }

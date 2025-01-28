@@ -67,3 +67,6 @@ def _parse_people(x: ColumnInput | list[int]) -> list[int]:
     return [int(i["id"]) for i in x["persons_and_teams"]]
 
 People = Annotated[list[int], BeforeValidator(_parse_people)]
+
+# def _parse_file(x: ColumnInput | list[dict[str, str]]) -> list[dict[str, str]]:
+# File = Annotated[]

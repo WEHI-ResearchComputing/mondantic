@@ -2,6 +2,9 @@ from typing import Annotated
 import requests
 import typer
 import ast
+import re
+
+INVALID_CHARS = re.compile(r"[^a-zA-Z0-9_]")
 
 TYPE_MAP: dict[str, str] = {
     "numbers": "Numbers",
@@ -82,6 +85,8 @@ def codegen(
                 simple=1,
             )
         )
+    
+    clean_board_name = INVALID_CHARS.sub("", parsed["data"]["boards"][0]["name"])
     return ast.fix_missing_locations(
         ast.Module(
             body=[
@@ -97,7 +102,7 @@ def codegen(
                 ast.ImportFrom("pydantic", [ast.alias("BaseModel"), ast.alias("Field")], 0),
                 ast.ImportFrom("typing", [ast.alias("ClassVar")], 0),
                 ast.ClassDef(
-                    name=parsed["data"]["boards"][0]["name"],
+                    name=clean_board_name,
                     bases=[ast.Name("BaseModel", 0)],
                     keywords=[],
                     body=columns,
