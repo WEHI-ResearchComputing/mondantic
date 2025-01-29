@@ -6,7 +6,7 @@ Converts from Monday.com boards to Pydantic dataclasses.
 ## Installation
 
 ``` bash
-pip install git+ssh://git@github.com/WEHI-ResearchComputing/mondantic.git
+pip install git+https://github.com/WEHI-ResearchComputing/mondantic.git
 ```
 
 ## Usage
