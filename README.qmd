@@ -64,7 +64,7 @@ Note that each column contains nested data classes, hence the long output!
 
 ```{python}
 #| echo: true
-from mondantic.hydrate import hydrate
+from mondantic import hydrate
 from devtools import pprint
 
 for instance in hydrate(TestBoard, api_key):

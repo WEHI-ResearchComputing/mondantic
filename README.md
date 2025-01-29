@@ -50,7 +50,7 @@ Then, you can create instances of these models in Python. Note that each
 column contains nested data classes, hence the long output!
 
 ``` python
-from mondantic.hydrate import hydrate
+from mondantic import hydrate
 from devtools import pprint
 
 for instance in hydrate(TestBoard, api_key):
