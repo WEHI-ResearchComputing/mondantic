@@ -236,6 +236,13 @@ def hydrate[T: BaseModel](cls: Type[T], api_key: str) -> Iterable[T]:
     """
     Yields instances of the given Pydantic model from the Monday.com API.
     The board's ID is obtained from the model's class attribute `board_id`.
+
+    Params:
+        cls: The Pydantic model to hydrate
+        api_key: The API key to use for authentication
+
+    Yields:
+        Instances of the given Pydantic model
     """
     res = requests.post(
         "https://api.monday.com/v2",
