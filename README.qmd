@@ -1,0 +1,68 @@
+---
+execute:
+    # Seemingly the only way to suppress the parameters being printed
+    echo: false
+format: "gfm"
+---
+```{python}
+#| tags: [parameters]
+#| output: false
+#| echo: false
+board = None
+api_key = None
+```
+
+# mondantic
+
+Converts from Monday.com boards to Pydantic dataclasses.
+
+## Installation
+
+```bash
+pip install git+ssh://git@github.com/WEHI-ResearchComputing/mondantic.git
+```
+
+## Usage
+
+Let's say we're working with the following demo board:
+![](example.png)
+
+### Schema Generating
+
+The first step is to generate the Pydantic schema.
+This is most easily done using the CLI:
+
+```{python}
+#| output: false
+#| echo: true
+! mondantic-codegen --board-id "{board}" --api-key "{api_key}" > models.py
+```
+
+Which generates:
+```{python}
+#| echo: false 
+from IPython.display import Markdown, display
+
+with open("models.py") as fp:
+    display(Markdown(f"```python\n{fp.read()}\n```"))
+```
+
+```{python}
+#| echo: false
+#| output: true
+%run models.py
+```
+
+## Hydration
+
+Then, you can create instances of these models in Python.
+Note that each column contains nested data classes, hence the long output!
+
+```{python}
+#| echo: true
+from mondantic.hydrate import hydrate
+from rich import print
+
+for instance in hydrate(TestBoard, api_key):
+    print(instance)
+```
