@@ -59,10 +59,14 @@ Then, you can create instances of these models in Python.
 Note that each column contains nested data classes, hence the long output!
 
 ```{python}
+#| echo: false
+``` 
+
+```{python}
 #| echo: true
 from mondantic.hydrate import hydrate
-from rich import print
+from devtools import pprint
 
 for instance in hydrate(TestBoard, api_key):
-    print(instance)
+    pprint(instance)
 ```
