@@ -27,7 +27,7 @@ pip install git+ssh://git@github.com/WEHI-ResearchComputing/mondantic.git
 Let's say we're working with the following demo board:
 ![](example.png)
 
-### Schema Generating
+### Schema Generation
 
 The first step is to generate the Pydantic schema.
 This is most easily done using the CLI:
