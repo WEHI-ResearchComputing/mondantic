@@ -1,23 +1,57 @@
-from typing import Annotated
+from typing import Annotated, Type
 import requests
 import typer
 import ast
 import re
+from mondantic import schema
 
 INVALID_CHARS = re.compile(r"[^a-zA-Z0-9_]")
 
-TYPE_MAP: dict[str, str] = {
-    "numbers": "Numbers",
-    "people": "People",
-    "item_id": "ItemId",
-    "status": "Status",
-    "date": "Date",
-    "board_relation": "BoardRelation"
+TYPE_MAP: dict[str, Type[schema.ColumnValue]] = {
+    "mirror": schema.MirrorValue,
+    "numbers": schema.NumbersValue,
+    "board_relation": schema.BoardRelationValue,
+    "button": schema.ButtonValue,
+    "checkbox": schema.CheckboxValue,
+    "color_picker": schema.ColorPickerValue,
+    "country": schema.CountryValue,
+    "creation_log": schema.CreationLogValue,
+    "date": schema.DateValue,
+    "dependency": schema.DependencyValue,
+    "doc": schema.DocValue,
+    "dropdown": schema.DropdownValue,
+    "email": schema.EmailValue,
+    "file": schema.FileValue,
+    "formula": schema.FormulaValue,
+    "hour": schema.HourValue,
+    "integration": schema.IntegrationValue,
+    # Not sure if this is correct
+    "item_assignees": schema.ItemIdValue,
+    "item_id": schema.ItemIdValue,
+    "last_updated": schema.LastUpdatedValue,
+    "link": schema.LinkValue,
+    "location": schema.LocationValue,
+    "people": schema.PeopleValue,
+    "person": schema.PersonValue,
+    "phone": schema.PhoneValue,
+    "progress": schema.ProgressValue,
+    "rating": schema.RatingValue,
+    "status": schema.StatusValue,
+    "subtasks": schema.SubtasksValue,
+    "tags": schema.TagsValue,
+    "team": schema.TeamValue,
+    "text": schema.TextValue,
+    "time_tracking": schema.TimeTrackingValue,
+    "timeline": schema.TimelineValue,
+    "unsupported": schema.UnsupportedValue,
+    "vote": schema.VoteValue,
+    "week": schema.WeekValue,
+    "world_clock": schema.WorldClockValue,
 }
-DEFAULT_MAP: dict[str, ast.expr] = {
-    "people": ast.List([]),
-    "board_relation": ast.List([])
-}
+# DEFAULT_MAP: dict[str, ast.expr] = {
+#     "people": ast.List([]),
+#     "board_relation": ast.List([])
+# }
 
 app = typer.Typer()
 
@@ -71,16 +105,16 @@ def codegen(
     ]
     for column in parsed["data"]["boards"][0]["columns"]:
         col_name = column["title"].lower().replace(" ", "_").replace("#", "num").replace("&", "").replace("/", "")
-        col_type: str = TYPE_MAP.get(column["type"], "Text")
-        default: ast.expr = DEFAULT_MAP.get(column["type"], ast.Constant(None))
+        col_type: Type[schema.ColumnValue] = TYPE_MAP.get(column["type"], schema.ColumnValue)
+        # default: ast.expr = DEFAULT_MAP.get(column["type"], ast.Constant(None))
         columns.append(
             ast.AnnAssign(
                 target=ast.Name(col_name),
-                annotation=ast.Name(col_type),
-                # annotation=ast.Subscript(ast.Name("Optional"), slice=ast.Name(col_type)),
+                # annotation=ast.Name(col_type.__name__),
+                annotation=ast.Subscript(ast.Name("Optional"), slice=ast.Name(col_type.__name__)),
                 value=ast.Call(ast.Name("Field"), [], [
                     ast.keyword("alias", ast.Constant(column["id"])),
-                    ast.keyword("default", default),
+                    ast.keyword("default", ast.Constant(None)),
                 ]),
                 simple=1,
             )
@@ -90,17 +124,11 @@ def codegen(
     return ast.fix_missing_locations(
         ast.Module(
             body=[
-                ast.ImportFrom("mondantic.coltypes", [
-                    ast.alias("ItemId"),
-                    ast.alias("People"),
-                    ast.alias("Status"),
-                    ast.alias("Date"),
-                    ast.alias("BoardRelation"),
-                    ast.alias("Text"),
-                    ast.alias("Numbers"),
-                ], 0),
+                ast.ImportFrom("mondantic.schema", [
+                    ast.Name(cls.__name__) for cls in TYPE_MAP.values()
+                ] + [ast.Name("ColumnValue")], 0),
                 ast.ImportFrom("pydantic", [ast.alias("BaseModel"), ast.alias("Field")], 0),
-                ast.ImportFrom("typing", [ast.alias("ClassVar")], 0),
+                ast.ImportFrom("typing", [ast.alias("ClassVar"), ast.alias("Optional")], 0),
                 ast.ClassDef(
                     name=clean_board_name,
                     bases=[ast.Name("BaseModel", 0)],

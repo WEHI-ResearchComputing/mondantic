@@ -1,7 +1,7 @@
 import pytest
 def pytest_addoption(parser: pytest.Parser):
-    parser.addoption("--api-key", help="Monday API Key")
-    parser.addoption("--board-id", help="Monday board ID")
+    parser.addoption("--api-key", help="Monday API Key", required=False)
+    parser.addoption("--board-id", help="Monday board ID", required=False)
 
 @pytest.fixture
 def api_key(request: pytest.FixtureRequest) -> str:
