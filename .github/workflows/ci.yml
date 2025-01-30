@@ -4,7 +4,7 @@ name: CI
 on: [push, pull_request]
 
 jobs:
-  import:
+  tests:
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -21,10 +21,6 @@ jobs:
 
       - name: Sync
         run: uv sync
-
-      - name: Import library
-        # This checks if we're triggering any syntax errors in older Python versions
-        run: uv run python -c "import mondantic"
 
       - name: Run tests
         run: uv run pytest
