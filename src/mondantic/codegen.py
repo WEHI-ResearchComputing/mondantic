@@ -2,10 +2,9 @@ from typing import Annotated, Type
 import requests
 import typer
 import ast
-import re
 from mondantic import schema
+from mondantic.formatting import clean_class_name, clean_field_name
 
-INVALID_CHARS = re.compile(r"[^a-zA-Z0-9_]")
 
 TYPE_MAP: dict[str, Type[schema.ColumnValue]] = {
     "mirror": schema.MirrorValue,
@@ -48,10 +47,6 @@ TYPE_MAP: dict[str, Type[schema.ColumnValue]] = {
     "week": schema.WeekValue,
     "world_clock": schema.WorldClockValue,
 }
-# DEFAULT_MAP: dict[str, ast.expr] = {
-#     "people": ast.List([]),
-#     "board_relation": ast.List([])
-# }
 
 app = typer.Typer()
 
@@ -104,7 +99,7 @@ def codegen(
         )
     ]
     for column in parsed["data"]["boards"][0]["columns"]:
-        col_name = column["title"].lower().replace(" ", "_").replace("#", "num").replace("&", "").replace("/", "")
+        col_name = clean_field_name(column["title"])
         col_type: Type[schema.ColumnValue] = TYPE_MAP.get(column["type"], schema.ColumnValue)
         # default: ast.expr = DEFAULT_MAP.get(column["type"], ast.Constant(None))
         columns.append(
@@ -120,7 +115,7 @@ def codegen(
             )
         )
     
-    clean_board_name = INVALID_CHARS.sub("", parsed["data"]["boards"][0]["name"])
+    clean_board_name = clean_class_name(parsed["data"]["boards"][0]["name"])
     return ast.fix_missing_locations(
         ast.Module(
             body=[
