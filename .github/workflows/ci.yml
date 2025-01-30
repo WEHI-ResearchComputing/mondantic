@@ -9,6 +9,9 @@ jobs:
     strategy:
       matrix:
         python-version: ['3.10', '3.11', '3.12', '3.13']
+    env:
+      MONDAY_API_KEY: ${{ secrets.MONDAY_API_KEY }}
+      MONDAY_BOARD_ID: ${{ secrets.MONDAY_BOARD_ID }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
