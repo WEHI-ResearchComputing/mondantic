@@ -38,7 +38,7 @@ ALL_VALUE_COLS: list[type[schema.ColumnValue]] = [
 ]
 
 ALL_VALUE_QUERY = "\n".join([
-    f"... on {cls.model_fields["typename__"].default} {model_to_query(cls, exclude=["typename__", "column"], indent=6)}" for cls in ALL_VALUE_COLS
+    f"... on {cls.model_fields['typename__'].default} {model_to_query(cls, exclude=['typename__', 'column'], indent=6)}" for cls in ALL_VALUE_COLS
 ])
 
 HYDRATE_QUERY = f"""

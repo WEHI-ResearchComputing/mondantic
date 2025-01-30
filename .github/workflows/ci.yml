@@ -6,6 +6,7 @@ on: [push, pull_request]
 jobs:
   import:
     runs-on: ubuntu-latest
+    environment: tests
     strategy:
       matrix:
         python-version: ['3.10', '3.11', '3.12', '3.13']
