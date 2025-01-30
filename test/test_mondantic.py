@@ -33,6 +33,7 @@ def test_graphql_query():
     """.replace(" ", "").replace("\n", "")
 
 @pytest.mark.skipif("MONDAY_API_KEY" not in os.environ or "MONDAY_BOARD_ID" not in os.environ, reason="Missing MONDAY_API_KEY or MONDAY_BOARD_ID")
+@pytest.mark.skipif("GITHUB_ACTIONS" in os.environ, reason="Skipping in GitHub Actions as it hits the rate limit")
 def test_codegen():
     api_key: str = os.environ["MONDAY_API_KEY"]
     board_id: int = int(os.environ["MONDAY_BOARD_ID"])
