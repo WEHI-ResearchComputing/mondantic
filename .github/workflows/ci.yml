@@ -24,4 +24,7 @@ jobs:
 
       - name: Import library
         # This checks if we're triggering any syntax errors in older Python versions
-        run: python -c "import mondantic"
+        run: uv run python -c "import mondantic"
+
+      - name: Run tests
+        run: uv run pytest

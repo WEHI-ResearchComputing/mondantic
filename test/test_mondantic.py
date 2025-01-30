@@ -3,6 +3,8 @@ from mondantic.codegen import codegen
 from mondantic.hydrate import hydrate
 from mondantic.query_builder import model_to_query
 from mondantic.schema import DateValue
+import pytest
+import os
 
 def test_graphql_query():
     assert model_to_query(DateValue, exclude=["typename__"]).replace(" ", "").replace("\n", "") == """
@@ -30,7 +32,11 @@ def test_graphql_query():
 }
     """.replace(" ", "").replace("\n", "")
 
-def test_codegen(api_key: str, board_id: int):
+@pytest.mark.skipif("MONDAY_API_KEY" not in os.environ or "MONDAY_BOARD_ID" not in os.environ, reason="Missing MONDAY_API_KEY or MONDAY_BOARD_ID")
+def test_codegen():
+    api_key: str = os.environ["MONDAY_API_KEY"]
+    board_id: int = int(os.environ["MONDAY_BOARD_ID"])
+
     # Codegen
     result = codegen(board_id, api_key)
     cls_name = ""
