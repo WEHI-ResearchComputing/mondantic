@@ -96,6 +96,12 @@ def codegen(
             ),
             value=ast.Constant(str(board_id)),
             simple=1,
+        ),
+        ast.AnnAssign(
+            target=ast.Name("item_id"),
+            annotation=ast.Name("int"),
+            value=None,
+            simple=1
         )
     ]
     for column in parsed["data"]["boards"][0]["columns"]:
