@@ -9,6 +9,7 @@ query ($board_id: ID!) {
   boards(ids: [$board_id]) {
     items_page {
       items {
+        id
         column_values {
           id
           text
@@ -258,4 +259,5 @@ def hydrate(cls: Type[T], api_key: str) -> Iterable[T]:
     parsed = res.json()
     for row in parsed["data"]["boards"][0]["items_page"]["items"]:
         model_json = { col["id"]: col for col in row["column_values"] }
+        model_json["item_id"] = row["id"]
         yield cls.model_validate(model_json)
